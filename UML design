@@ -1,41 +1,10 @@
-classDiagram
-    class Episodes {
-        int episode_id (PK, Auto-increment)
-        string title
-        int season
-        int episode_number
-        date air_date
-        string canvas_size
-    }
-
-    class Colors {
-        int color_id (PK, Auto-increment)
-        string color_name
-    }
-
-    class EpisodeColors {
-        int episode_id (FK)
-        int color_id (FK)
-    }
-
-    class LandscapeElements {
-        int element_id (PK, Auto-increment)
-        string element_name
-    }
-
-    class EpisodeElements {
-        int episode_id (FK)
-        int element_id (FK)
-    }
-
-    class Quotes {
-        int quote_id (PK, Auto-increment)
-        int episode_id (FK)
-        text quote_text
-    }
-
-    Episodes "1" -- "*" EpisodeColors : contains
-    Colors "1" -- "*" EpisodeColors : used in
-    Episodes "1" -- "*" EpisodeElements : contains
-    LandscapeElements "1" -- "*" EpisodeElements : appears in
-    Episodes "1" -- "*" Quotes : has
++------------------+
+|     episodes     |
++------------------+
+| id (PK)          |
+| title            |
+| air_date         |
+| season_number    |
+| episode_number   |
+| description      |
++------------------+
