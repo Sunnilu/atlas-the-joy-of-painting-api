@@ -1,35 +1,24 @@
--- Create main episodes table
-CREATE TABLE episodes (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    air_date DATE NOT NULL,
-    season_number INT,
-    episode_number INT,
-    description TEXT
-);
+const { Client } = require('pg');
+const fs = require('fs');
 
--- Subjects table
-CREATE TABLE subjects (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL
-);
+// Load SQL from file (or define it as a string here)
+const sql = fs.readFileSync('./schema.sql', 'utf-8'); // OR paste schema directly here
 
--- Colors table
-CREATE TABLE colors (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL
-);
+const client = new Client({
+  user: 'your_username',
+  host: 'localhost',
+  database: 'your_database',
+  password: 'your_password',
+  port: 5432,
+});
 
--- Join table for episodes ↔ subjects
-CREATE TABLE episode_subjects (
-    episode_id INT REFERENCES episodes(id) ON DELETE CASCADE,
-    subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
-    PRIMARY KEY (episode_id, subject_id)
-);
+client.connect();
 
--- Join table for episodes ↔ colors
-CREATE TABLE episode_colors (
-    episode_id INT REFERENCES episodes(id) ON DELETE CASCADE,
-    color_id INT REFERENCES colors(id) ON DELETE CASCADE,
-    PRIMARY KEY (episode_id, color_id)
-);
+client.query(sql, (err, res) => {
+  if (err) {
+    console.error('Error executing SQL:', err.stack);
+  } else {
+    console.log('Database schema created!');
+  }
+  client.end();
+});
