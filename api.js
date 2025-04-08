@@ -26,6 +26,8 @@ app.get('/episodes', async (req, res) => {
   const { color, subject, month, match = 'all' } = req.query;
 
   try {
+    console.log('Incoming query params:', req.query);
+
     let baseQuery = `
       SELECT e.id, e.title, e.air_date, e.season, e.episode,
         ARRAY_AGG(DISTINCT c.name) AS colors,
@@ -40,22 +42,22 @@ app.get('/episodes', async (req, res) => {
     const values = [];
 
     if (month) {
-      conditions.push(`EXTRACT(MONTH FROM e.air_date) = $${values.length + 1}`);
       const monthIndex = new Date(`${month} 1, 2000`).getMonth() + 1;
+      conditions.push(`EXTRACT(MONTH FROM e.air_date) = $${values.length + 1}`);
       values.push(monthIndex);
     }
 
     if (color) {
       const colors = Array.isArray(color) ? color : [color];
-      const inColors = colors.map((_, i) => `$${values.length + i + 1}`).join(', ');
-      conditions.push(`c.name IN (${inColors})`);
+      const placeholders = colors.map((_, i) => `$${values.length + i + 1}`);
+      conditions.push(`c.name IN (${placeholders.join(', ')})`);
       values.push(...colors);
     }
 
     if (subject) {
       const subjects = Array.isArray(subject) ? subject : [subject];
-      const inSubjects = subjects.map((_, i) => `$${values.length + i + 1}`).join(', ');
-      conditions.push(`s.name IN (${inSubjects})`);
+      const placeholders = subjects.map((_, i) => `$${values.length + i + 1}`);
+      conditions.push(`s.name IN (${placeholders.join(', ')})`);
       values.push(...subjects);
     }
 
@@ -64,6 +66,9 @@ app.get('/episodes', async (req, res) => {
     }
 
     baseQuery += ` GROUP BY e.id ORDER BY e.air_date ASC`;
+
+    console.log('Final SQL Query:', baseQuery);
+    console.log('Query Values:', values);
 
     const result = await pool.query(baseQuery, values);
     res.json(result.rows);
@@ -102,3 +107,4 @@ app.get('/filters', async (req, res) => {
 app.listen(port, () => {
   console.log(`🎨 Joy of Painting API listening at http://localhost:${port}`);
 });
+const { Client } = require('pg');
