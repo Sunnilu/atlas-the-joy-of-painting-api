@@ -29,7 +29,7 @@ app.get('/episodes', async (req, res) => {
     console.log('Incoming query params:', req.query);
 
     let baseQuery = `
-      SELECT e.id, e.title, e.air_date, e.season, e.episode,
+      SELECT e.id, e.title, e.air_date, e.season_number, e.episode_number,
         ARRAY_AGG(DISTINCT c.name) AS colors,
         ARRAY_AGG(DISTINCT s.name) AS subjects
       FROM episodes e
@@ -70,6 +70,8 @@ app.get('/episodes', async (req, res) => {
     console.log('Final SQL Query:', baseQuery);
     console.log('Query Values:', values);
 
+    console.log(baseQuery);
+    console.log(values); 
     const result = await pool.query(baseQuery, values);
     res.json(result.rows);
   } catch (error) {
